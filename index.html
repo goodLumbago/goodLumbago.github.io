@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Czarek — .NET Developer</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: { mono: ['"JetBrains Mono"', 'monospace'] },
+          colors: {
+            bg: '#242424',
+            surface: '#161616',
+            border: '#393e40',
+            dim: '#708763',
+            muted: '#c8c8c8',
+            bright: '#e8e8e8',
+            green: '#e5ff00',
+          },
+        }
+      }
+    }
+  </script>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    /* Nav line decoration — desktop sidebar only */
+    .nav-line::before {
+      content: '';
+      display: inline-block;
+      width: 16px;
+      height: 1px;
+      background: #1f1f1f;
+      margin-right: 10px;
+      vertical-align: middle;
+      transition: width 0.2s, background 0.2s;
+    }
+
+    .nav-line:hover::before,
+    .nav-line.active::before {
+      width: 24px;
+      background: #484848;
+    }
+
+    .nav-line.active::before {
+      background: #4ade80;
+    }
+
+    .nav-line.active {
+      color: #4ade80;
+    }
+
+    /* Project arrow hover */
+    .project-arrow {
+      transition: color 0.15s, transform 0.15s;
+    }
+
+    .project-row:hover .project-arrow {
+      color: #4ade80;
+      transform: translate(2px, -2px);
+    }
+
+    /* Mobile menu open state */
+    #mobile-menu.open {
+      display: flex;
+    }
+  </style>
+</head>
+
+<body class="bg-bg text-muted text-[16px] leading-relaxed font-mono">
+
+  <!-- MOBILE HEADER -->  
+  <header class="lg:hidden sticky top-0 z-50 bg-bg border-b border-border flex items-center justify-between px-5 py-4">
+    <div>
+      <span class="text-bright font-medium text-[15px]">Czarek Szpryngiel</span>
+      <span class="text-dim text-[11px] ml-2">.NET Dev</span>
+    </div>
+    <!-- Hamburger -->
+    <button id="hamburger" class="text-dim hover:text-muted transition-colors p-1" aria-label="Menu">
+      <svg id="icon-open" class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+        <path stroke-linecap="round" d="M4 6h16M4 12h16M4 18h16" />
+      </svg>
+      <svg id="icon-close" class="w-5 h-5 hidden" fill="none" stroke="currentColor" stroke-width="1.5"
+        viewBox="0 0 24 24">
+        <path stroke-linecap="round" d="M6 18L18 6M6 6l12 12" />
+      </svg>
+    </button>
+  </header>
+
+  <!-- Mobile dropdown menu -->
+  <div id="mobile-menu"
+    class="lg:hidden hidden fixed top-[57px] left-0 right-0 z-40 bg-bg border-b border-border flex-col px-5 py-4 gap-1">
+    <a href="#about"
+      class="mobile-nav text-[11px] text-dim uppercase tracking-widest py-2 hover:text-muted transition-colors"
+      onclick="closeMobileMenu()">About</a>
+    <a href="#projects"
+      class="mobile-nav text-[11px] text-dim uppercase tracking-widest py-2 hover:text-muted transition-colors"
+      onclick="closeMobileMenu()">Projects</a>
+    <a href="#contact"
+      class="mobile-nav text-[11px] text-dim uppercase tracking-widest py-2 hover:text-muted transition-colors"
+      onclick="closeMobileMenu()">Contact</a>
+    <div class="border-t border-border mt-2 pt-3 flex flex-col gap-2">
+      <a href="https://github.com/goodLumbago" target="_blank"
+        class="text-[11px] text-dim hover:text-muted transition-colors before:content-['↗_']">GitHub</a>
+      <a href="https://www.linkedin.com/in/cezariusz-szpryngiel-06b0893b8/" target="_blank"
+        class="text-[11px] text-dim hover:text-muted transition-colors before:content-['↗_']">LinkedIn</a>
+      <a href="mailto:contact.cezari@pm.me"
+        class="text-[11px] text-dim hover:text-muted transition-colors before:content-['↗_']">Email</a>
+    </div>
+  </div>
+
+  <!-- PAGE SHELL -->
+  <div class="lg:grid lg:h-screen" style="grid-template-columns: 280px 1fr;">
+
+    <!-- ── SIDEBAR (desktop) ── -->
+    <aside class="hidden lg:flex flex-col border-r border-border px-9 py-12 overflow-y-auto h-screen sticky top-0">
+
+      <!-- AVATAR -->
+      <div
+        class="w-[72px] h-[72px] bg-surface border border-border flex items-center justify-center text-dim text-[10px] tracking-widest mb-7 overflow-hidden flex-shrink-0">
+        <img src="/img/profileimg.jpg" class="w-full h-full object-cover">
+      </div>
+
+      <div class="text-[20px] font-medium text-bright tracking-tight mb-1">Czarek Szpryngiel</div>
+      <div class="text-[11px] text-green font-light mb-7">.NET Developer</div>
+
+      <p class="text-[12px] font-light text-muted leading-[1.85] mb-10">
+        I build backends, real-time systems, desktop apps.
+        <br>Based in Zielona Góra.
+      </p>
+
+      <nav class="flex flex-col gap-0.5 mb-auto">
+        <a href="#about" onclick="setActive(this)"
+          class="nav-line active text-[11px] text-dim uppercase tracking-widest py-1.5 transition-colors hover:text-muted no-underline">About</a>
+        <a href="#projects" onclick="setActive(this)"
+          class="nav-line        text-[11px] text-dim uppercase tracking-widest py-1.5 transition-colors hover:text-muted no-underline">Projects</a>
+        <a href="#contact" onclick="setActive(this)"
+          class="nav-line        text-[11px] text-dim uppercase tracking-widest py-1.5 transition-colors hover:text-muted no-underline">Contact</a>
+      </nav>
+
+      <div class="mt-10 flex flex-col gap-2">
+        <a href="https://github.com/goodLumbago" target="_blank"
+          class="text-[11px] text-dim hover:text-muted transition-colors no-underline before:content-['↗_']">GitHub</a>
+        <a href="https://www.linkedin.com/in/cezariusz-szpryngiel-06b0893b8/" target="_blank"
+          class="text-[11px] text-dim hover:text-muted transition-colors no-underline before:content-['↗_']">LinkedIn</a>
+        <a href="mailto:contact.cezari@pm.me"
+          class="text-[11px] text-dim hover:text-muted transition-colors no-underline before:content-['↗_']">Email</a>
+      </div>
+    </aside>
+
+    <!-- MAIN -->
+    <main class="overflow-y-auto lg:h-screen scroll-smooth" id="main">
+
+      <!-- ABOUT -->
+      <section id="about" class="border-b border-border flex flex-col justify-center
+                                px-5 py-16
+                                sm:px-10
+                                lg:px-16 lg:py-[72px]">
+
+        <div
+          class="text-[12px] uppercase tracking-[0.18em] text-dim mb-8 flex items-center gap-3 after:flex-1 after:h-px after:bg-border after:content-['']">
+          About
+        </div>
+
+        <!-- Avatar (mobile) -->
+        <div
+          class="lg:hidden w-[64px] h-[64px] bg-surface border border-border flex items-center justify-center text-dim tracking-widest mb-6 overflow-hidden">
+          <img src="/img/profileimg.jpg" alt="Czarek" class="w-full h-full object-cover">
+        </div>
+
+        <h1 class="text-[32px] sm:text-[40px] font-medium text-bright tracking-tight leading-[1.1] mb-6">
+          .NET dev,<br>
+          <span class="text-green">self-taught.</span>
+        </h1>
+
+        <p class="text-[12px] sm:text-[13px] font-light text-muted leading-[1.9] mb-8 max-w-[560px]">
+          Started with Unity and C#, published 5 games on Google Play, then moved into web
+          and desktop development.
+          </br>I build projects from scratch - fullstack web apps and desktop applications
+          using .NET 8, Minimal API, EF Core, WPF, React, TypeScript, and PostgreSQL.
+          Currently expanding into Blazor.
+          I don't learn by copying solutions. Whether it's JWT, custom scraping logic, or Clean Architecture. I need to
+          understand the process and logic before I move on.
+        </p>
+
+        <div class="flex flex-wrap gap-2">
+          <span
+            class="text-[9px] sm:text-[10px] text-dim border border-border px-2.5 py-1 uppercase tracking-widest">C#</span>
+          <span
+            class="text-[9px] sm:text-[10px] text-dim border border-border px-2.5 py-1 uppercase tracking-widest">ASP.NET
+            Core</span>
+          <span
+            class="text-[9px] sm:text-[10px] text-dim border border-border px-2.5 py-1 uppercase tracking-widest">Blazor</span>
+          <span
+            class="text-[9px] sm:text-[10px] text-dim border border-border px-2.5 py-1 uppercase tracking-widest">SignalR</span>
+          <span class="text-[9px] sm:text-[10px] text-dim border border-border px-2.5 py-1 uppercase tracking-widest">EF
+            Core</span>
+          <span
+            class="text-[9px] sm:text-[10px] text-dim border border-border px-2.5 py-1 uppercase tracking-widest">PostgreSQL</span>
+          <span
+            class="text-[9px] sm:text-[10px] text-dim border border-border px-2.5 py-1 uppercase tracking-widest">React</span>
+          <span
+            class="text-[9px] sm:text-[10px] text-dim border border-border px-2.5 py-1 uppercase tracking-widest">TypeScript</span>
+          <span
+            class="text-[9px] sm:text-[10px] text-dim border border-border px-2.5 py-1 uppercase tracking-widest">WPF</span>
+          <span
+            class="text-[9px] sm:text-[10px] text-dim border border-border px-2.5 py-1 uppercase tracking-widest">Tailwind</span>
+        </div>
+      </section>
+
+      <!-- PROJECTS -->
+      <section id="projects" class="border-b border-border flex flex-col justify-center
+                                   px-5 py-16
+                                   sm:px-10
+                                   lg:px-16 lg:py-[72px]">
+
+        <div
+          class="text-[10px] uppercase tracking-[0.18em] text-dim mb-8 flex items-center gap-3 after:flex-1 after:h-px after:bg-border after:content-['']">
+          Projects
+        </div>
+
+        <div class="flex flex-col gap-px bg-border border border-border">
+
+          <!-- Morse -->
+          <div
+            class="project-row group bg-bg hover:bg-surface transition-colors border-b border-border last:border-b-0">
+            <button onclick="toggleAccordion(this)"
+              class="w-full px-5 py-6 sm:px-8 sm:py-7 grid gap-6 items-start text-left bg-transparent border-none cursor-pointer"
+              style="grid-template-columns: 1fr auto">
+              <div>
+                <div class="text-[10px] text-dim tracking-[0.1em] mb-1.5">01</div>
+                <div class="text-[14px] sm:text-[16px] font-medium text-bright tracking-tight mb-2">IN PROGRESS: Morse
+                  Chat</div>
+                <div class="text-[13px] text-dim font-light leading-[1.75]">
+                  A real-time platform for learning Morse code. Create rooms, transmit signals, decode on the fly.
+                </div>
+              </div>
+              <div class="project-arrow text-[18px] text-dim">+</div>
+            </button>
+
+            <div class="accordion-body hidden px-5 pb-6 sm:px-8 sm:pb-7">
+              <div class="grid grid-cols-1 lg:grid-cols-[1fr_auto] gap-8 border-t border-border pt-4">
+
+                <!-- Description -->
+                <div class="text-[13px] text-dim font-light leading-[1.75]">
+                  Create a room, invite friends or join strangers, and communicate exclusively
+                  through Morse code signals. If you want to say something,
+                  you have to beep it out. Built-in translator decodes transmissions in real-time
+                  so you can follow along while you learn. The goal is to make Morse code
+                  feel like a skill worth picking up, not a museum exhibit.
+                  <br><br>
+                  No database: conversations exist only in memory for the duration of the
+                  session. Once you disconnect, everything is gone. No logs, no history,
+                  no trace. Fast by design, private by default.
+                  <br><br>
+                  Built on Blazor Server and SignalR; WebSockets are a natural fit for
+                  real-time signal transmission where latency actually matters.
+                </div>
+
+                <!-- Tags & Git -->
+                <div
+                  class="flex flex-col gap-3 items-start border-border pl-0 w-full lg:border-l lg:pl-8 lg:w-64 lg:items-end">
+                  <a target="_blank"
+                    class="inline-flex items-center gap-2 text-[15px] text-bright hover:text-dim transition-colors uppercase tracking-widest">
+                    <span>↗</span> In progress
+                  </a>
+                  <div class="flex flex-wrap gap-1 justify-start mt-auto">
+                    <span
+                      class="text-[9px] text-dim border border-border px-2 py-0.5 uppercase tracking-widest">Blazor</span>
+                    <span
+                      class="text-[9px] text-dim border border-border px-2 py-0.5 uppercase tracking-widest">SignalR</span>
+                    <span class="text-[9px] text-dim border border-border px-2 py-0.5 uppercase tracking-widest">Clean
+                      Architecture</span>
+                  </div>
+
+                </div>
+
+              </div>
+            </div>
+          </div>
+
+          <!-- Snippet-Manager -->
+          <div
+            class="project-row group bg-bg hover:bg-surface transition-colors border-b border-border last:border-b-0">
+            <button onclick="toggleAccordion(this)"
+              class="w-full px-5 py-6 sm:px-8 sm:py-7 grid gap-6 items-start text-left bg-transparent border-none cursor-pointer"
+              style="grid-template-columns: 1fr auto">
+              <div>
+                <div class="text-[10px] text-dim tracking-[0.1em] mb-1.5">02</div>
+                <div class="text-[14px] sm:text-[16px] font-medium text-bright tracking-tight mb-2">Snippet-Manager
+                </div>
+                <div class="text-[13px] text-dim font-light leading-[1.75]">
+                  A personal code snippet repository. Built because your brain
+                  can only hold so much at once.
+                </div>
+              </div>
+              <div class="project-arrow text-[18px] text-dim">+</div>
+            </button>
+
+            <div class="accordion-body hidden px-5 pb-6 sm:px-8 sm:pb-7">
+              <div class="grid grid-cols-1 lg:grid-cols-[1fr_auto] gap-8 border-t border-border pt-4">
+
+                <!-- Description -->
+                <div class="text-[13px] text-dim font-light leading-[1.75]">
+                  Started as a personal tool: a searchable repository of code snippets
+                  and notes, callable with a keyboard shortcut, so you can find what
+                  you need without leaving your editor. Fuzzy search over PostgreSQL
+                  trigrams means you don't need to remember the exact phrase, "hw to cntr a dif" works.
+                  <br>
+                  <br>
+                  Authentication is production-grade: JWT with token rotation and reuse
+                  detection, automatic session invalidation, per-endpoint IP-based rate
+                  limiting, and Axios interceptors with promise-based deduplication to
+                  handle token refresh without race conditions. Added because the plan
+                  was always to deploy. That part is ready, the cloud bill isn't.
+                  <br><br>
+                  Ships as both a web app and a desktop application via Electron.
+                </div>
+
+                <!-- Tags & Git -->
+                <div
+                  class="flex flex-col gap-3 items-start border-border pl-0 w-full lg:border-l lg:pl-8 lg:w-64 lg:items-end">
+                  <a href="https://github.com/goodLumbago/snippet-manager" target="_blank"
+                    class="inline-flex items-center gap-2 text-[15px] text-bright hover:text-dim transition-colors uppercase tracking-widest">
+                    <span>↗</span> View on GitHub
+                  </a>
+                  <div class="flex flex-wrap gap-1 justify-start mt-auto">
+                    <span class="text-[9px] text-dim border border-border px-2 py-0.5 uppercase tracking-widest">.NET
+                      8</span>
+                    <span class="text-[9px] text-dim border border-border px-2 py-0.5 uppercase tracking-widest">Minimal
+                      API</span>
+                    <span class="text-[9px] text-dim border border-border px-2 py-0.5 uppercase tracking-widest">EF
+                      Core</span>
+                    <span
+                      class="text-[9px] text-dim border border-border px-2 py-0.5 uppercase tracking-widest">PostgreSQL</span>
+                    <span
+                      class="text-[9px] text-dim border border-border px-2 py-0.5 uppercase tracking-widest">React</span>
+                    <span
+                      class="text-[9px] text-dim border border-border px-2 py-0.5 uppercase tracking-widest">TypeScript</span>
+                    <span
+                      class="text-[9px] text-dim border border-border px-2 py-0.5 uppercase tracking-widest">Tailwind</span>
+                    <span
+                      class="text-[9px] text-dim border border-border px-2 py-0.5 uppercase tracking-widest">Electron</span>
+                    <span
+                      class="text-[9px] text-dim border border-border px-2 py-0.5 uppercase tracking-widest">JWT</span>
+                  </div>
+
+                </div>
+
+              </div>
+            </div>
+          </div>
+
+          <!-- OWBFMA -->
+          <div
+            class="project-row group bg-bg hover:bg-surface transition-colors border-b border-border last:border-b-0">
+            <button onclick="toggleAccordion(this)"
+              class="w-full px-5 py-6 sm:px-8 sm:py-7 grid gap-6 items-start text-left bg-transparent border-none cursor-pointer"
+              style="grid-template-columns: 1fr auto">
+              <div>
+                <div class="text-[10px] text-dim tracking-[0.1em] mb-1.5">03</div>
+                <div class="text-[14px] sm:text-[16px] font-medium text-bright tracking-tight mb-2">Overengineered
+                  Windows Basic Features Management Application</div>
+                <div class="text-[13px] text-dim font-light leading-[1.75]">
+                  Windows app built to be deliberately overengineered. An excuse to go deep on WPF internals and Clean
+                  Architecture.
+                </div>
+              </div>
+              <div class="project-arrow text-[18px] text-dim">+</div>
+            </button>
+
+            <div class="accordion-body hidden px-5 pb-6 sm:px-8 sm:pb-7">
+              <div class="grid grid-cols-1 lg:grid-cols-[1fr_auto] gap-8 border-t border-border pt-4">
+
+                <!-- Description -->
+                <div class="text-[13px] text-dim font-light leading-[1.75]">
+                  Started as a simple "shut my PC down after X minutes".
+                  Built after being woken at 3am by a YouTube rotary engine compilation.
+                  <br>
+                  Could've been 50 lines in MainWindow.xaml.cs.
+                  <br>
+                  Instead: Clean Architecture, a Mediator separating frontend from backend without either side knowing
+                  the other exists,
+                  a Factory managing object lifecycle, strict MVVM with zero logic in Views, shutdown calls WIN32 to
+                  pull the trigger.
+                </div>
+
+                <!-- Tags & Git -->
+                <div
+                  class="flex flex-col gap-3 items-start border-border pl-0 w-full lg:border-l lg:pl-8 lg:w-64 lg:items-end">
+                  <a href="https://github.com/goodLumbago/snippet-manager" target="_blank"
+                    class="inline-flex items-center gap-2 text-[15px] text-bright hover:text-dim transition-colors uppercase tracking-widest">
+                    <span>↗</span> View on GitHub
+                  </a>
+                  <div class="flex flex-wrap gap-1 justify-start mt-auto">
+                    <span class="text-[9px] text-dim border border-border px-2 py-0.5 uppercase tracking-widest">.NET
+                      8</span>
+                    <span
+                      class="text-[9px] text-dim border border-border px-2 py-0.5 uppercase tracking-widest">WPF</span>
+                    <span
+                      class="text-[9px] text-dim border border-border px-2 py-0.5 uppercase tracking-widest">MVVM</span>
+                    <span
+                      class="text-[9px] text-dim border border-border px-2 py-0.5 uppercase tracking-widest">XAML</span>
+                    <span
+                      class="text-[9px] text-dim border border-border px-2 py-0.5 uppercase tracking-widest">WIN32</span>
+                    <span class="text-[9px] text-dim border border-border px-2 py-0.5 uppercase tracking-widest">Clean
+                      Architecture</span>
+                  </div>
+
+                </div>
+
+              </div>
+            </div>
+          </div>
+        </div>
+
+
+        <div class="border border-border mt-8 mb-8">
+
+          <!-- Mobile Games -->
+          <div
+            class="project-row group bg-bg hover:bg-surface transition-colors border-b border-border last:border-b-0">
+            <button onclick="toggleAccordion(this)"
+              class="w-full px-5 py-6 sm:px-8 sm:py-7 grid gap-6 items-start text-left bg-transparent border-none cursor-pointer"
+              style="grid-template-columns: 1fr auto">
+              <div>
+                <div class="text-[10px] text-dim tracking-[0.1em] mb-1.5">Earlier work</div>
+                <div class="text-[14px] sm:text-[16px] font-medium text-bright tracking-tight mb-2">Mobile Games —
+                  Google Play</div>
+                <div class="text-[13px] text-dim font-light leading-[1.75]">
+                  5 shipped games. Where it all started.
+                </div>
+              </div>
+              <div class="project-arrow text-[18px] text-dim">+</div>
+            </button>
+
+            <div class="accordion-body hidden px-5 pb-6 sm:px-8 sm:pb-7">
+              <div class="grid grid-cols-1 lg:grid-cols-[1fr_auto] gap-8 border-t border-border pt-4">
+
+                <!-- Description -->
+                <div class="text-[13px] text-dim font-light leading-[1.75] mb-4">
+                  Hook that led me to my Software Development journey.
+                  <br>First sleepless debugging night, first object reference not set to an instance of an object, first working method, first human interacting with my work.
+                </div>
+
+
+
+              </div>
+              <!-- Gifs -->
+              <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2 ">
+                <div class="aspect-square overflow-hidden border border-border">
+                  <img src="/img/gifs/cloud_drift.gif" class="w-full h-full object-cover" alt="Cloud Drift">
+                </div>
+                <div class="aspect-square overflow-hidden border border-border">
+                  <img src="/img/gifs/fastfood_arcade.gif" class="w-full h-full object-cover" alt="Fastfood Arcade">
+                </div>
+                <div class="aspect-square overflow-hidden border border-border">
+                  <img src="/img/gifs/procrastinator_2000.gif" class="w-full h-full object-cover"
+                    alt="Procrastinator 2000">
+                </div>
+                <div class="aspect-square overflow-hidden border border-border">
+                  <img src="/img/gifs/swingy-mr-thingy.gif" class="w-full h-full object-cover" alt="Swingy Mr Thingy">
+                </div>
+                <div class="aspect-square overflow-hidden border border-border">
+                  <img src="/img/gifs/wurds.gif" class="w-full h-full object-cover scale-125" alt="Wurds">
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+      </section>
+
+      <!-- CONTACT -->
+      <section id="contact" class="flex flex-col justify-center pb-24
+                                  px-5 py-16
+                                  sm:px-10
+                                  lg:px-16 lg:py-[72px]">
+
+        <div
+          class="text-[10px] uppercase tracking-[0.18em] text-dim mb-8 flex items-center gap-3 after:flex-1 after:h-px after:bg-border after:content-['']">
+          Contact
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-px bg-border border border-border max-w-[900px]">
+
+          <a href="https://github.com/goodLumbago" target="_blank"
+            class="bg-bg hover:bg-surface px-6 py-5 sm:px-7 sm:py-6 no-underline text-inherit transition-colors group">
+            <div class="text-[10px] text-dim uppercase tracking-[0.12em] mb-1.5">GitHub</div>
+            <div class="text-[12px] sm:text-[13px] text-bright font-light group-hover:text-green transition-colors">
+              github.com/goodLumbago</div>
+          </a>
+
+          <a href="https://www.linkedin.com/in/cezariusz-szpryngiel-06b0893b8/" target="_blank"
+            class="bg-bg hover:bg-surface px-6 py-5 sm:px-7 sm:py-6 no-underline text-inherit transition-colors group">
+            <div class="text-[10px] text-dim uppercase tracking-[0.12em] mb-1.5">LinkedIn</div>
+            <div class="text-[12px] sm:text-[13px] text-bright font-light group-hover:text-green transition-colors">
+              linkedin.com/in/cezariusz-szpryngiel-06b0893b8/</div>
+          </a>
+
+          <a href="mailto:contact.cezari@pm.me"
+            class="bg-bg hover:bg-surface px-6 py-5 sm:px-7 sm:py-6 no-underline text-inherit transition-colors group">
+            <div class="text-[10px] text-dim uppercase tracking-[0.12em] mb-1.5">Email</div>
+            <div class="text-[12px] sm:text-[13px] text-bright font-light group-hover:text-green transition-colors">
+              contact.cezari@pm.me</div>
+          </a>
+
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <script>
+    // Desktop scrollspy 
+    function setActive(el) {
+      document.querySelectorAll('.nav-line').forEach(n => n.classList.remove('active'));
+      el.classList.add('active');
+    }
+
+    const main = document.getElementById('main');
+    if (main) {
+      main.addEventListener('scroll', () => {
+        const sections = document.querySelectorAll('section[id]');
+        const navItems = document.querySelectorAll('.nav-line');
+        let current = '';
+        sections.forEach(s => {
+          if (main.scrollTop >= s.offsetTop - 120) current = s.id;
+        });
+        navItems.forEach(n => {
+          n.classList.toggle('active', n.getAttribute('href') === '#' + current);
+        });
+      });
+    }
+    function toggleAccordion(btn) {
+      const body = btn.nextElementSibling;
+      const arrow = btn.querySelector('.project-arrow');
+      const isOpen = !body.classList.contains('hidden');
+
+      const main = document.getElementById('main');
+      const scrollTop = main.scrollTop;
+
+      body.classList.toggle('hidden', isOpen);
+      arrow.textContent = isOpen ? '+' : '−';
+
+      main.scrollTop = scrollTop;
+    }
+
+    // Mobile hamburger
+    const hamburger = document.getElementById('hamburger');
+    const mobileMenu = document.getElementById('mobile-menu');
+    const iconOpen = document.getElementById('icon-open');
+    const iconClose = document.getElementById('icon-close');
+
+    hamburger.addEventListener('click', () => {
+      const isOpen = mobileMenu.classList.toggle('open');
+      iconOpen.classList.toggle('hidden', isOpen);
+      iconClose.classList.toggle('hidden', !isOpen);
+    });
+
+    function closeMobileMenu() {
+      mobileMenu.classList.remove('open');
+      iconOpen.classList.remove('hidden');
+      iconClose.classList.add('hidden');
+    }
+
+    // Close menu on outside click
+    document.addEventListener('click', e => {
+      if (!hamburger.contains(e.target) && !mobileMenu.contains(e.target)) {
+        closeMobileMenu();
+      }
+    });
+  </script>
+
+</body>
+
+</html>
